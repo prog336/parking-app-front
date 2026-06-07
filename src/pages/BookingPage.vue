@@ -79,11 +79,13 @@ async function handleCreateBooking() {
       endTime: new Date(bookingForm.value.endTime).toISOString(),
     });
     createDialogVisible.value = false;
+    await parkingStore.fetchSpots();
   }
 }
 
 async function handleRelease(id: string) {
   await bookingsStore.releaseBooking(id);
+  await parkingStore.fetchSpots();
 }
 
 async function handlePay(id: string) {
