@@ -83,6 +83,7 @@ async function handleSaveOwner() {
   };
   if (editingOwner.value) {
     await ownersStore.updateOwner(editingOwner.value.id, dto);
+    await vehiclesStore.fetchVehicles();
   } else {
     await ownersStore.addOwner(dto);
   }
@@ -91,6 +92,7 @@ async function handleSaveOwner() {
 
 async function handleDeleteOwner(id: string) {
   await ownersStore.deleteOwner(id);
+  await vehiclesStore.fetchVehicles();
 }
 
 const vehicleDialogVisible = ref(false);
