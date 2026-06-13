@@ -1,24 +1,26 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import BookingCreateDialog from "../components/BookingCreateDialog.vue";
 import BookingsTable from "../components/BookingsTable.vue";
 import BookingsSearchSection from "../components/BookingsSearchSection.vue";
 
 const createDialogVisible = ref(false);
 
-onMounted(() => {
-
-});
+function handleCreateBooking() {
+  console.log("opened create dialog " + createDialogVisible.value);
+  createDialogVisible.value = true;
+  console.log("closed create dialog " + createDialogVisible.value);
+}
 </script>
 
 <template>
   <div class="page-container">
     <h1>Бронирование и оплата</h1>
 
-    <BookingsSearchSection @openBookingsCreateDialog = "createDialogVisible = true"/>
+    <BookingsSearchSection @openBookingsCreateDialog = "handleCreateBooking"/>
     <BookingsTable />
 
-    <BookingCreateDialog v-model:visible="createDialogVisible" />
+    <BookingCreateDialog v-if="createDialogVisible" @closeBookingCreateDialog="createDialogVisible = false" />
   </div>
 </template>
 

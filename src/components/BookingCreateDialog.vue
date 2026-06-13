@@ -1,21 +1,12 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useParkingStore} from "../storages/parking.ts";
 import {useVehiclesStore} from "../storages/vehicles.ts";
 import {useBookingsStore} from "../storages/bookings.ts";
 
-const props = defineProps<{
-  visible: boolean;
-}>();
-
 const emit = defineEmits<{
-  (e: 'update:visible', visible: boolean): void
+  closeBookingCreateDialog: []
 }>();
-
-let createDialogVisible = computed({
-  get: () => props.visible,
-  set: (visible: boolean) => emit('update:visible', visible)
-});
 
 const parkingStore = useParkingStore();
 const vehiclesStore = useVehiclesStore();
@@ -29,6 +20,7 @@ const bookingForm = ref({
   startTime: '',
   endTime: '',
 });
+const createDialogVisible = ref(true);
 
 async function handleCreateBooking() {
   if (bookingForm.value.parkingSpotId && bookingForm.value.vehicleId
@@ -39,26 +31,23 @@ async function handleCreateBooking() {
       startTime: new Date(bookingForm.value.startTime).toISOString(),
       endTime: new Date(bookingForm.value.endTime).toISOString(),
     });
-    createDialogVisible.value = false;
+    emit('closeBookingCreateDialog');
   }
 }
 
-watch(createDialogVisible, async () =>{
-  if (createDialogVisible.value) {
-    await parkingStore.fetchSpots();
-    await vehiclesStore.fetchVehicles();
-    bookingForm.value = {
-      parkingSpotId: null,
-      vehicleId: null,
-      startTime: '',
-      endTime: '',
-    };
-  }
-})
+onMounted(() => {
+  parkingStore.fetchSpots();
+  vehiclesStore.fetchVehicles();
+});
 </script>
 
 <template>
-  <el-dialog v-model="createDialogVisible" title="Новое бронирование" width="500px">
+  <el-dialog
+      v-model="createDialogVisible"
+      title="Новое бронирование"
+      width="500px"
+      @close="$emit('closeBookingCreateDialog')"
+  >
     <el-form :model="bookingForm" label-width="140px">
       <el-form-item label="Парковочное место">
         <el-select v-model="bookingForm.parkingSpotId" placeholder="Выберите место" style="width: 100%">
@@ -102,7 +91,7 @@ watch(createDialogVisible, async () =>{
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="createDialogVisible = false">Отмена</el-button>
+      <el-button @click="$emit('closeBookingCreateDialog')">Отмена</el-button>
       <el-button type="primary" @click="handleCreateBooking">Забронировать</el-button>
     </template>
   </el-dialog>
